@@ -3,9 +3,9 @@
 #Blackjack Project
 
 .include "macros.asm"
-.eqv $t0, currentMoney
-.eqv $t1, betAmount
-.eqv $t2, dealerHiddenCardValue
+.eqv currentMoney $t0
+.eqv betAmount $t1
+.eqv dealerHiddenCardValue $t2
 
 .data
 	
@@ -15,6 +15,9 @@ dealCard:
 	li $v0, 42 
 	li $a0, 0
 	li $a1, 53
+	syscall
 	move $t2 ,$a0
 	
+	printInt($t2)
 	
+	exitProgram

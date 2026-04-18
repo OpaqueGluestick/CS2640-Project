@@ -11,7 +11,7 @@
 
 .macro printInt(%Int)
 	li $v0, 1
-	la $a0, %Int
+	move $a0, %Int
 	syscall
 .end_macro 
 
