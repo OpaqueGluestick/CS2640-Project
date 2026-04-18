@@ -11,10 +11,10 @@
 	
 .text
 dealCard:
-	#Random Number Generator (a0=seed, a1=upper limit not inclusive, output to a0)
+	#Random Number Generator (puts a number from 0-51 into $t2)
 	li $v0, 42 
 	li $a0, 0
-	li $a1, 53
+	li $a1, 52
 	syscall
 	move $t2 ,$a0
 	
