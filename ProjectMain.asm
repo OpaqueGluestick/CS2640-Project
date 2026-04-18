@@ -19,14 +19,10 @@ wagerMsg: .asciiz "How much would you like to wager? \n"
 
 .text
 #Print the hello message
-li $v0, 4
-la $a0, helloplayerMsg
-syscall
+printString(helloplayerMsg)
 
 #Print the wager message
-li $v0, 4
-la $a0, wagerMsg
-syscall
+printString(wagerMsg)
 
 #Read the wager amount
 li $v0, 5
