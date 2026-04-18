@@ -28,6 +28,11 @@ li $v0, 4
 la $a0, wagerMsg
 syscall
 
+#Read the wager amount
+li $v0, 5
+syscall
+move $t1, $v0
+
 dealCard:
 	#Random Number Generator (puts a number from 0-51 into $a0)
 	li $v0, 42 
