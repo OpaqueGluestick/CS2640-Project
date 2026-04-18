@@ -9,6 +9,9 @@
 .eqv dealerHiddenCardValue $t2
 .eqv dealerHandValue $t3
 .eqv playerHandValue $t4
+.eqv dealerHasAce $t5
+.eqv playerHasAce $t6
+
 .data
 	
 .text
@@ -18,7 +21,7 @@ dealCard:
 	li $a0, 0
 	li $a1, 52
 	syscall
-	move $t5 ,$a0
+	#move $t5 ,$a0  (may change)
 	
 	printInt($t2)
 	
