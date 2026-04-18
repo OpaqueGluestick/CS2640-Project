@@ -13,7 +13,6 @@
 .eqv playerHasAce $t6
 
 .data
-baseDeck: .word a, a, a, a, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, J, J, J, J, Q, Q, Q, Q, K, K, K, K
 helloplayerMsg: .asciiz "Hello player, welcome to our Blackjack simulation\n"
 wagerMsg: .asciiz "How much would you like to wager? \n"
 
@@ -29,14 +28,8 @@ li $v0, 5
 syscall
 move $t1, $v0
 
-dealCard:
-	#Random Number Generator (puts a number from 0-51 into $a0)
-	li $v0, 42 
-	li $a0, 0
-	li $a1, 52
-	syscall
-	#move $t5 ,$a0  (may change)
+startGame:
+	#initialize hasAce (0=false 1=true)
+	li dealerHasAce, 0
+	li platerHasAce, 0
 
-	printInt($t2)
-	
-	exitProgram
