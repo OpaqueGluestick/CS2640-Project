@@ -23,3 +23,11 @@
 .macro newLine
 	printString(nL)
 .end_macro 
+
+.macro addTo(%location,%value)
+	add %location, %location, %value
+.end_macro 
+
+.macro subFrom(%location,%value)
+	sub %location, %location, %value
+.end_macro 
