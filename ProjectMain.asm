@@ -23,6 +23,11 @@ li $v0, 4
 la $a0, helloplayerMsg
 syscall
 
+#Print the wager message
+li $v0, 4
+la $a0, wagerMsg
+syscall
+
 dealCard:
 	#Random Number Generator (puts a number from 0-51 into $a0)
 	li $v0, 42 
