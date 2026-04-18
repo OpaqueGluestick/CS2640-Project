@@ -3,10 +3,12 @@
 #Blackjack Project
 
 .include "macros.asm"
+#rough guess of t-register's uses
 .eqv currentMoney $t0
 .eqv betAmount $t1
 .eqv dealerHiddenCardValue $t2
-
+.eqv dealerHandValue $t3
+.eqv playerHandValue $t4
 .data
 	
 .text
@@ -16,7 +18,7 @@ dealCard:
 	li $a0, 0
 	li $a1, 52
 	syscall
-	move $t2 ,$a0
+	move $t5 ,$a0
 	
 	printInt($t2)
 	
