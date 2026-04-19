@@ -9,6 +9,7 @@
 .eqv dealerHiddenCardValue $t2
 .eqv dealerHandValue $t3
 .eqv playerHandValue $t4
+#Ace:(0=false 1=true)
 .eqv dealerHasAce $t5
 .eqv playerHasAce $t6
 
@@ -29,7 +30,16 @@ syscall
 move $t1, $v0
 
 startGame:
-	#initialize hasAce (0=false 1=true)
+	#initialize hands
 	li dealerHasAce, 0
-	li platerHasAce, 0
-
+	li dealerHandValue, 0
+	li playerHasAce, 0
+	li playerHandValue, 0
+	
+	#test/example of dealing a card to player (remove # to see or copy & paste to run multiple draws)
+	#printInt(playerHandValue)
+	#newLine
+	#dealCard(playerHandValue, playerHasAce)
+	#printInt(playerHandValue)
+	
+	exitProgram

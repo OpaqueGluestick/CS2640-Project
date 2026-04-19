@@ -1,7 +1,7 @@
 #macros for the project
 .data
 	nL: .asciiz "\n"
-	baseDeck: .word a, a, a, a, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, J, J, J, J, Q, Q, Q, Q, K, K, K, K
+	baseDeck: .word 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13
 .text
 
 .macro printString(%string)
@@ -25,14 +25,6 @@
 	printString(nL)
 .end_macro 
 
-.macro addTo(%location,%value)
-	add %location, %location, %value
-.end_macro 
-
-.macro subFrom(%location,%value)
-	sub %location, %location, %value
-.end_macro 
-
 .macro dealCard(%personHandValue,%aceRegister)
 	#adds drawn card's value to person's hand value and updates ace
 	
@@ -42,28 +34,45 @@
 	li $a1, 52
 	syscall
 	
-	#change RN into deck's card (ex 50->K)
+	#change RN into deck's card (ex 50->13->K)
 	la $s0, baseDeck
 	mul $a0, $a0, 4
-	lw $a0, $a0($s0)
+	add $s0, $s0, $a0
+	lw $s1, 0($s0)
 	
-	beq $a0, 'a', drawAce
-	beq $a0, 'J', drawJ
-	beq $a0, 'Q', drawQ
-	beq $a0, 'K', drawK
+	#branches for non number cards (ace,jack,queen,king)
+	beq $s1, 1, drawAce
+	beq $s1, 11, drawFace
+	beq $s1, 12, drawFace
+	beq $s1, 13, drawFace
+	
+	add %personHandValue, %personHandValue, $s1
+	j bustCheck
+	
 drawAce:
 	beq %aceRegister, 1, hasAce
 	
 	add %personHandValue, %personHandValue, 11
 	li %aceRegister, 1
-	
+	j bustCheck
+	#done to cover for 2 aces in hand
 	hasAce:
 		add %personHandValue, %personHandValue, 1
+		j bustCheck
+		
+drawFace:
+	#11,12,13 = J,Q,K = 10
+	add %personHandValue, %personHandValue, 10
+	j bustCheck
 	
-drawJ:
-drawQ:
-drawK:
-bustAceCheck:
-	beq %aceRegister, 1, endingJump
+bustCheck:
+	#Here to check if bust, if so covert any aces from 11 to 1
+	ble %personHandValue, 21, endingJump
+	beq %aceRegister, 0, endingJump
+	
+	#calls if handVal >= 22 and has ace; converts ace 11 to 1
+	li %aceRegister, 0
+	sub %personHandValue, %personHandValue, 10
+	
 endingJump:
 .end_macro 
