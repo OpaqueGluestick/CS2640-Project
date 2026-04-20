@@ -27,13 +27,23 @@ pWinMessage: .asciiz "You Win"
 dWinMessage: .asciiz "Dealer Wins"
 tiedMessage: .asciiz "Its a Tie"
 arrow: .asciiz "->"
+houseHas: .asciiz "The house currently has: $"
+playerHas: .asciiz "The player currently has: $"
+casinoHoldings: .word 100 # house starts with $100
+playerHoldings: .word 50 # player starts with $50
 
 .text
+lw $t0, playerHoldings # current money
+lw $s7, casinoHoldings
+
 #Print the hello message
 printString(helloplayerMsg)
 
 #Print the wager message
 printString(wagerMsg)
+
+#Print casino and player amount
+currentHoldings
 
 #Read the wager amount
 li $v0, 5
@@ -111,15 +121,22 @@ checkWinner:
 	beq dealerHandValue, playerHandValue, tieGame
 	bgt dealerHandValue, playerHandValue, dealerWin
 	#if not above then player hand > dealer hand and goes to player win 
+	j playerWin
 playerWin:
 	printString(pWinMessage)
-	j exit
+	li $t8, 1 # flag for player win
+	newLine
+	j roundEnd
 dealerWin:
 	printString(dWinMessage)
-	j exit
+	li $t8, 2 # flag for dealer win
+	newLine
+	j roundEnd
 tieGame:
 	printString(tiedMessage)
-	j exit
+	li $t8, 0 # flag for tie
+	newLine
+	j roundEnd
 	
 hit:
 	printString(pHand)
@@ -129,6 +146,29 @@ hit:
 	ble playerHandValue, 21, decisionLoop
 	#only happens if over 21
 	printString(bustMessage)
+	newLine
+	li $t8, 2
+	j roundEnd
+	
+# $t8 is a flag: 1 for player win, 2 for dealer win
+roundEnd:
+	beq $t8, 1, wagerWon
+	beq $t8, 2, wagerLost
+	currentHoldings
+	j exit # tie, neither wins/loses money
+	
+wagerWon:
+	add $t0, $t0, betAmount
+	sub $s7, $s7, betAmount
+	currentHoldings
+	j exit
+	
+wagerLost:
+	sub $t0, $t0, betAmount
+	add $s7, $s7, betAmount
+	currentHoldings
+	j exit
+	
 #TODO: Make it loop back to startGame with a player choice
 exit:
 	exitProgram
