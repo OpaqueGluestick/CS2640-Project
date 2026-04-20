@@ -25,6 +25,18 @@
 	printString(nL)
 .end_macro 
 
+.macro currentHoldings
+	#Print casino amount
+	printString(houseHas)
+	printInt($s7)
+	newLine
+
+	#Print player amount
+	printString(playerHas)
+	printInt($t0)
+	newLine
+.end_macro
+
 .macro dealCard(%personHandValue,%aceRegister)
 	#adds drawn card's value to person's hand value and updates ace
 	
