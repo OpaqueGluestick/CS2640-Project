@@ -26,7 +26,13 @@ bustMessage: .asciiz "Bust"
 pWinMessage: .asciiz "You Win"
 dWinMessage: .asciiz "Dealer Wins"
 tiedMessage: .asciiz "Its a Tie"
+gainMessage: .asciiz "You Won: $"
+lossMessage: .asciiz "You Lost: $"
+repromptMessage: .asciiz "Would you like to play again? (Enter 'Y' or 'N')"
+playerBroke: .asciiz "You have no more money, sorry..."
+casinoBroke: .asciiz "The casino has no more money, congratulations!"
 arrow: .asciiz "->"
+dollarSign: .asciiz "$"
 houseHas: .asciiz "The house currently has: $"
 playerHas: .asciiz "The player currently has: $"
 casinoHoldings: .word 100 # house starts with $100
@@ -46,6 +52,7 @@ printString(wagerMsg)
 currentHoldings
 
 #Read the wager amount
+printString(dollarSign)
 li $v0, 5
 syscall
 move $t1, $v0
@@ -155,19 +162,64 @@ roundEnd:
 	beq $t8, 1, wagerWon
 	beq $t8, 2, wagerLost
 	currentHoldings
-	j exit # tie, neither wins/loses money
+	j reprompt # tie, neither wins/loses money
 	
 wagerWon:
 	add $t0, $t0, betAmount
 	sub $s7, $s7, betAmount
+	printString(gainMessage)
+	printInt($t1)
+	newLine
 	currentHoldings
-	j exit
+	j reprompt
 	
 wagerLost:
 	sub $t0, $t0, betAmount
 	add $s7, $s7, betAmount
+	printString(lossMessage)
+	printInt($t1)
+	newLine
 	currentHoldings
+	j reprompt
+
+reprompt:
+	# ask player if they'd like to continue
+	# if either player or casino is broke, end-game
+	bgt $t0, 0, checkCasino # If money > 0, skip broke message
+	printString(playerBroke)
 	j exit
+
+checkCasino:
+	# checks if casino is broke
+	bgt $s7, 0, askToContinue
+	printString(casinoBroke)
+	j exit
+
+askToContinue:
+	printString(repromptMessage)
+	li $v0, 8
+	la $a0, impBuffer
+	li $a1, 5
+	syscall
+
+	#check input
+	la $s3, impBuffer
+	lb $s3, 0($s3)
+	li $s4, 'Y'
+	beq $s3, $s4, resetWager
+	li $s4, 'y'
+	beq $s3, $s4, resetWager
+	
+	j exit # exit if 'N'
+
+resetWager:
+	# reset wager if player wants to bet a different amount
+	printString(wagerMsg)
+	printString(dollarSign)
+	li $v0, 5
+	syscall
+	move $t1, $v0 # update the betAmount ($t1)
+	j startGame
 	
 #TODO: Make it loop back to startGame with a player choice
 exit:
