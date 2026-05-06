@@ -121,6 +121,12 @@ stand:
 	#dealer hand < 16 = hit; else stand (subject to change)
 dealerHitLoop:
 	bge dealerHandValue, 17, checkWinner
+
+	#Add a delay for the dealer if he draws cards
+	li $v0, 32
+	li $a0, 1500
+	syscall
+	
 	dealCard(dealerHandValue, dealerHasAce)
 	printString(dealerDrawMsg)
 	printCard($s1)
@@ -155,7 +161,6 @@ winOffBlackjack:
 	newLine
 	currentHoldings
 	j reprompt
-	roundEnd
 
 playerWin:
 	printString(pWinMessage)
