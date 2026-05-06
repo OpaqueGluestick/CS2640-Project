@@ -88,6 +88,9 @@ newHand:
 	printCard($s1)
 	newLine
 	divider
+	#If the player receives a blackJack
+	beq playerHandValue, 21, blackjackWin
+
 decisionLoop:
 	printString(choicePrompt)
 	li $v0, 8
@@ -135,6 +138,15 @@ checkWinner:
 	bgt dealerHandValue, playerHandValue, dealerWin
 	#if not above then player hand > dealer hand and goes to player win 
 	j playerWin
+
+winOffBlackjack:
+	printString(playerBlackjackMessage)
+	newLine
+	printString(pWinMessage)
+	newLine
+	li $t8, 1
+	roundEnd
+
 playerWin:
 	printString(pWinMessage)
 	li $t8, 1 # flag for player win
