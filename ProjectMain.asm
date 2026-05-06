@@ -16,7 +16,7 @@
 .data
 helloplayerMsg: .asciiz "Hello player, welcome to our Blackjack simulation\n"
 wagerMsg: .asciiz "How much would you like to wager? \n"
-choicePrompt: .asciiz "Hit or Stand? (Enter 'H' or 'S') "
+choicePrompt: .asciiz "Hit, Stand, or Double Down? (Enter 'H', 'S', or 'D') "
 dHand: .asciiz "Dealer Hand Value: "
 questionmark: .asciiz "?"
 plusSign: .asciiz " + "
@@ -38,6 +38,8 @@ dealerDrawMsg: .asciiz "The Dealer Drew: "
 playerDrawMsg: .asciiz "The Player Drew: "
 casinoHoldings: .word 100 # house starts with $100
 playerHoldings: .word 50 # player starts with $50
+playerBlackjackMessage: .asciiz "Congrats on the blackjack!"
+
 .text
 lw $t0, playerHoldings # current money
 lw $s7, casinoHoldings
@@ -86,6 +88,9 @@ newHand:
 	printCard($s1)
 	newLine
 	divider
+	#If the player receives a blackJack
+	beq playerHandValue, 21, blackjackWin
+
 decisionLoop:
 	printString(choicePrompt)
 	li $v0, 8
@@ -99,6 +104,9 @@ decisionLoop:
 	lb $s2, 0($s2)
 	li $s3, 'H'
 	beq $s2, $s3, hit
+	li $s3, 'D'
+	beq $s2, $s3, playerDoubleDown
+
 stand:
 	#remind player of their hand
 	printString(pHand)
@@ -116,6 +124,12 @@ stand:
 	#dealer hand < 16 = hit; else stand (subject to change)
 dealerHitLoop:
 	bge dealerHandValue, 17, checkWinner
+
+	#Add a delay for the dealer if he draws cards
+	li $v0, 32
+	li $a0, 1500
+	syscall
+	
 	dealCard(dealerHandValue, dealerHasAce)
 	printString(dealerDrawMsg)
 	printCard($s1)
@@ -133,6 +147,24 @@ checkWinner:
 	bgt dealerHandValue, playerHandValue, dealerWin
 	#if not above then player hand > dealer hand and goes to player win 
 	j playerWin
+
+winOffBlackjack:
+	printString(playerBlackjackMessage)
+	newLine
+	printString(pWinMessage)
+	newLine
+
+	#Blackjack pays 3 to 2 instead of 1 to 1
+	mul $t9, betAmount, 3
+	div $t9, $t9, 2
+	add $t0, $t0, $t9
+	sub $s7, $s7, $t9
+	printString(gainMessage)
+	printInt($t9)
+	newLine
+	currentHoldings
+	j reprompt
+
 playerWin:
 	printString(pWinMessage)
 	li $t8, 1 # flag for player win
@@ -148,7 +180,22 @@ tieGame:
 	li $t8, 0 # flag for tie
 	newLine
 	j roundEnd
-	
+
+playerDoubleDown:
+	mul betAmount, betAmount, 2  #Doubles the players bet
+	printString(playerDrawMsg)
+	dealCard(playerHandValue, playerHasAce)
+	printCard($s1)
+	newLine
+	printString(pHand)
+	printInt(playerHandValue)
+	newLine
+	#if player ends up busting then the dealer wins, but since it is one card then automatically stand
+	ble playerHandValue, 21, stand
+	printString(bustMessage)
+	newLine
+	li $t8, 2
+	j roundEnd
 hit:
 	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
