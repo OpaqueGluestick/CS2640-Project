@@ -16,7 +16,7 @@
 .data
 helloplayerMsg: .asciiz "Hello player, welcome to our Blackjack simulation\n"
 wagerMsg: .asciiz "How much would you like to wager? \n"
-choicePrompt: .asciiz "Hit or Stand? (Enter 'H' or 'S') "
+choicePrompt: .asciiz "Hit, Stand, or Double Down? (Enter 'H', 'S', or 'D') "
 dHand: .asciiz "Dealer Hand Value: "
 questionmark: .asciiz "?"
 plusSign: .asciiz " + "
@@ -104,6 +104,9 @@ decisionLoop:
 	lb $s2, 0($s2)
 	li $s3, 'H'
 	beq $s2, $s3, hit
+	li $s3, 'D'
+	beq $s2, $s3, playerDoubleDown
+
 stand:
 	#remind player of their hand
 	printString(pHand)
@@ -177,7 +180,22 @@ tieGame:
 	li $t8, 0 # flag for tie
 	newLine
 	j roundEnd
-	
+
+playerDoubleDown:
+	mul betAmount, betAmount, 2  #Doubles the players bet
+	printString(playerDrawMsg)
+	dealCard(playerHandValue, playerHasAce)
+	printCard($s1)
+	newLine
+	printString(pHand)
+	printInt(playerHandValue)
+	newLine
+	#if player ends up busting then the dealer wins, but since it is one card then automatically stand
+	ble playerHandValue, 21, stand
+	printString(bustMessage)
+	newLine
+	li $t8, 2
+	j roundEnd
 hit:
 	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
