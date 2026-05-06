@@ -50,8 +50,6 @@
 	newLine
 .end_macro
 
-#TODO t7 t9
-
 .macro refillDeck #only as macro to look better/less clutter in dealCard
 refillLoop:	
 	beq $t9, 52, endRefill 
