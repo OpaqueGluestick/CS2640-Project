@@ -144,7 +144,17 @@ winOffBlackjack:
 	newLine
 	printString(pWinMessage)
 	newLine
-	li $t8, 1
+
+	#Blackjack pays 3 to 2 instead of 1 to 1
+	mul $t9, betAmount, 3
+	div $t9, $t9, 2
+	add $t0, $t0, $t9
+	sub $s7, $s7, $t9
+	printString(gainMessage)
+	printInt($t9)
+	newLine
+	currentHoldings
+	j reprompt
 	roundEnd
 
 playerWin:
