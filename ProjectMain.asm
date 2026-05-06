@@ -38,6 +38,8 @@ dealerDrawMsg: .asciiz "The Dealer Drew: "
 playerDrawMsg: .asciiz "The Player Drew: "
 casinoHoldings: .word 100 # house starts with $100
 playerHoldings: .word 50 # player starts with $50
+playerBlackjackMessage: .asciiz "Congrats on the blackjack!"
+
 .text
 lw $t0, playerHoldings # current money
 lw $s7, casinoHoldings
