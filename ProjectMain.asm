@@ -17,7 +17,7 @@
 helloplayerMsg: .asciiz "Hello player, welcome to our Blackjack simulation\n"
 wagerMsg: .asciiz "How much would you like to wager? \n"
 choicePrompt: .asciiz "Hit or Stand? (Enter 'H' or 'S') "
-dHand: .asciiz "Dealer Hand: "
+dHand: .asciiz "Dealer Hand Value: "
 questionmark: .asciiz "?"
 plusSign: .asciiz " + "
 pHand: .asciiz "Your Hand Value: "
@@ -31,13 +31,13 @@ lossMessage: .asciiz "You Lost: $"
 repromptMessage: .asciiz "Would you like to play again? (Enter 'Y' or 'N')"
 playerBroke: .asciiz "You have no more money, sorry..."
 casinoBroke: .asciiz "The casino has no more money, congratulations!"
-arrow: .asciiz "->"
 dollarSign: .asciiz "$"
 houseHas: .asciiz "The house currently has: $"
 playerHas: .asciiz "The player currently has: $"
+dealerDrawMsg: .asciiz "The Dealer Drew: "
+playerDrawMsg: .asciiz "The Player Drew: "
 casinoHoldings: .word 100 # house starts with $100
 playerHoldings: .word 50 # player starts with $50
-
 .text
 lw $t0, playerHoldings # current money
 lw $s7, casinoHoldings
@@ -61,40 +61,38 @@ startGame:
 	#initialize hands
 	li dealerHasAce, 0
 	li dealerHandValue, 0
+	li dealerHiddenCardValue, 0
 	li playerHasAce, 0
 	li playerHandValue, 0
 	
-	#test/example of dealing a card to player (remove # to see or copy & paste to run multiple draws)
-	#printInt(playerHandValue)
-	#newLine
-	#dealCard(playerHandValue, playerHasAce)
-	#printInt(playerHandValue)
-	
 newHand:
+	divider
 	#Deal Starting Hands
-	printString(dHand)#Dealer Hand Value: # + ?
+	printString(dealerDrawMsg)#The Dealer Drew: # + ?
 	dealCard(dealerHandValue, dealerHasAce)
+	printCard($s1)
+	move $s5, $s1 #saves card for when player stands
 	dealCard(dealerHiddenCardValue, dealerHasAce)
-	printInt(dealerHandValue)
+	move $s6, $s1 #saves the exact card drawn for later reveal
 	printString(plusSign)
 	printString(questionmark)
 	newLine
 	
-	printString(pHand)
+	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
-	printInt(playerHandValue)
-	printString(arrow)
+	printCard($s1)
+	printString(plusSign)
 	dealCard(playerHandValue, playerHasAce)
-	#TODO: make it show 1st card + 2nd card instead of total hand value (currently shows "1st card" + "(1st + 2nd)"
-	printInt(playerHandValue)
+	printCard($s1)
 	newLine
-	
+	divider
 decisionLoop:
 	printString(choicePrompt)
 	li $v0, 8
 	la $a0, impBuffer
 	li $a1, 5
 	syscall
+	newLine
 	
 	#check input
 	la $s2, impBuffer
@@ -108,17 +106,23 @@ stand:
 	newLine
 	
 	#reveal hand's value
-	printString(dHand)
+	printString(dealerDrawMsg)
+	printCard($s5)
+	printString(plusSign)
+	printCard($s6)
 	add dealerHandValue, dealerHandValue, dealerHiddenCardValue
-	printInt(dealerHandValue)
 	newLine
-	
+	newLine
 	#dealer hand < 16 = hit; else stand (subject to change)
 dealerHitLoop:
 	bge dealerHandValue, 17, checkWinner
-	printString(dHand)
 	dealCard(dealerHandValue, dealerHasAce)
+	printString(dealerDrawMsg)
+	printCard($s1)
+	newLine
+	printString(dHand)
 	printInt(dealerHandValue)
+	newLine
 	newLine
 	
 	j dealerHitLoop
@@ -146,8 +150,11 @@ tieGame:
 	j roundEnd
 	
 hit:
-	printString(pHand)
+	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
+	printCard($s1)
+	newLine
+	printString(pHand)
 	printInt(playerHandValue)
 	newLine
 	ble playerHandValue, 21, decisionLoop
@@ -159,6 +166,7 @@ hit:
 	
 # $t8 is a flag: 1 for player win, 2 for dealer win
 roundEnd:
+	divider
 	beq $t8, 1, wagerWon
 	beq $t8, 2, wagerLost
 	currentHoldings

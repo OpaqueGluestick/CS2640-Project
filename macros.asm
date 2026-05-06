@@ -1,7 +1,12 @@
 #macros for the project
 .data
 	nL: .asciiz "\n"
+	divides: .asciiz "--------------------------------\n"
 	baseDeck: .word 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13
+	A: .asciiz "Ace"
+	J: .asciiz "Jack"
+	Q: .asciiz "Queen"
+	K: .asciiz "King"
 .text
 
 .macro printString(%string)
@@ -23,6 +28,10 @@
 
 .macro newLine
 	printString(nL)
+.end_macro 
+
+.macro divider
+	printString(divides)
 .end_macro 
 
 .macro currentHoldings
@@ -88,3 +97,27 @@ bustCheck:
 	
 endingJump:
 .end_macro 
+
+#use register $s1 for the card after a dealCard macro
+.macro printCard(%register) 
+	beq %register, 1, Ace
+	beq %register, 11, Jack
+	beq %register, 12, Queen
+	beq %register, 13, King
+	#if regular number
+	printInt(%register)
+	j exitMacro
+Ace:
+	printString(A)
+	j exitMacro 
+Jack:
+	printString(J)
+	j exitMacro 
+Queen:
+	printString(Q)
+	j exitMacro 
+King:
+	printString(K)
+exitMacro:
+.end_macro 
+
