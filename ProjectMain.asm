@@ -89,7 +89,7 @@ newHand:
 	newLine
 	divider
 	#If the player receives a blackJack
-	beq playerHandValue, 21, blackjackWin
+	beq playerHandValue, 21, winOffBlackjack
 
 decisionLoop:
 	printString(choicePrompt)
@@ -276,6 +276,5 @@ resetWager:
 	move $t1, $v0 # update the betAmount ($t1)
 	j startGame
 	
-#TODO: Make it loop back to startGame with a player choice
 exit:
 	exitProgram
