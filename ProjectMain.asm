@@ -16,7 +16,7 @@
 .data
 helloplayerMsg: .asciiz "Hello player, welcome to our Blackjack simulation\n"
 wagerMsg: .asciiz "How much would you like to wager? \n"
-choicePrompt: .asciiz "Hit, Stand, or Double Down? (Enter 'H', 'S', or 'D') "
+choicePrompt: .asciiz "Hit, Stand, or Double Down? (Enter 'H', 'S', or 'D'): "
 dHand: .asciiz "Dealer Hand Value: "
 questionmark: .asciiz "?"
 plusSign: .asciiz " + "
@@ -28,7 +28,7 @@ dWinMessage: .asciiz "Dealer Wins"
 tiedMessage: .asciiz "Its a Tie"
 gainMessage: .asciiz "You Won: $"
 lossMessage: .asciiz "You Lost: $"
-repromptMessage: .asciiz "Would you like to play again? (Enter 'Y' or 'N')"
+repromptMessage: .asciiz "Would you like to play again? (Enter 'Y' or 'N'): "
 playerBroke: .asciiz "You have no more money, sorry..."
 casinoBroke: .asciiz "The casino has no more money, congratulations!"
 dollarSign: .asciiz "$"
@@ -39,6 +39,8 @@ playerDrawMsg: .asciiz "The Player Drew: "
 casinoHoldings: .word 100 # house starts with $100
 playerHoldings: .word 50 # player starts with $50
 playerBlackjackMessage: .asciiz "Congrats on the blackjack!"
+leaveCasinoMsg: .asciiz "You walk out of the casino with $"
+playerDrew21: .asciiz "That's 21!"
 
 .text
 lw $t0, playerHoldings # current money
@@ -102,9 +104,15 @@ decisionLoop:
 	#check input
 	la $s2, impBuffer
 	lb $s2, 0($s2)
+	
 	li $s3, 'H'
 	beq $s2, $s3, hit
+	li $s3, 'h'
+	beq $s2, $s3, hit
+	
 	li $s3, 'D'
+	beq $s2, $s3, playerDoubleDown
+	li $s3, 'd'
 	beq $s2, $s3, playerDoubleDown
 
 stand:
@@ -201,15 +209,22 @@ hit:
 	dealCard(playerHandValue, playerHasAce)
 	printCard($s1)
 	newLine
+	#if hit 21, send message and stand
+	beq playerHandValue, 21, drew21
 	printString(pHand)
 	printInt(playerHandValue)
 	newLine
-	ble playerHandValue, 21, decisionLoop
+	blt playerHandValue, 21, decisionLoop
 	#only happens if over 21
 	printString(bustMessage)
 	newLine
 	li $t8, 2
 	j roundEnd
+	
+drew21:
+	printString(playerDrew21)
+	newLine
+	j stand
 	
 # $t8 is a flag: 1 for player win, 2 for dealer win
 roundEnd:
@@ -242,6 +257,7 @@ reprompt:
 	# if either player or casino is broke, end-game
 	bgt $t0, 0, checkCasino # If money > 0, skip broke message
 	printString(playerBroke)
+	newLine
 	j exit
 
 checkCasino:
@@ -277,4 +293,13 @@ resetWager:
 	j startGame
 	
 exit:
+	#Show the player how much they have when they exit the program
+	divider
+	newLine
+	printString(leaveCasinoMsg)
+	printInt(currentMoney)
+	newLine
+	newLine
+	divider
+	
 	exitProgram
