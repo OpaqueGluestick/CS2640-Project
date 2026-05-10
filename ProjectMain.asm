@@ -59,10 +59,24 @@ printString(wagerMsg)
 currentHoldings
 
 #Read the wager amount
-printString(dollarSign)
-li $v0, 5
-syscall
-move $t1, $v0
+getWager:
+	printString(wagerMsg)
+	printString(dollarSign)
+	li $v0, 5
+	syscall
+	move $t1, $v0
+
+	#bet must be greater than 0
+	blez $t1, badWager
+
+	#bet cannot be more than player money
+	bgt $t1, $s7, badWager
+
+	j startGame
+
+badWager:
+	printString(invalidBetMsg)
+	j getWager
 
 startGame:
 	#initialize hands
@@ -311,7 +325,18 @@ resetWager:
 	li $v0, 5
 	syscall
 	move $t1, $v0 # update the betAmount ($t1)
+	
+	# bet must be greater than 0
+	blez $t1, badResetWager
+
+	# bet cannot be more than player money
+	bgt $t1, $s7, badResetWager
+
 	j startGame
+
+badResetWager:
+	printString(invalidBetMsg)
+	jresetWager
 	
 exit:
 	#Show the player how much they have when they exit the program
