@@ -71,7 +71,7 @@ getWager:
 	blez $t1, badWager
 
 	#bet cannot be more than player money
-	bgt $t1, $s7, badWager
+	bgt $t1, $s0, badWager
 
 	j startGame
 
@@ -331,7 +331,7 @@ resetWager:
 	blez $t1, badResetWager
 
 	# bet cannot be more than player money
-	bgt $t1, $s7, badResetWager
+	bgt $t1, $s0, badResetWager
 
 	j startGame
 
