@@ -52,6 +52,7 @@ lw $s7, casinoHoldings
 
 #Print the hello message
 printString(helloplayerMsg)
+newLine
 
 #Print the wager message
 printString(wagerMsg)
@@ -77,6 +78,7 @@ getWager:
 
 badWager:
 	printString(invalidBetMsg)
+	newLine
 	j getWager
 
 startGame:
@@ -117,7 +119,6 @@ decisionLoop:
 	la $a0, impBuffer
 	li $a1, 5
 	syscall
-	newLine
 	
 	#check input
 	la $s2, impBuffer
@@ -142,9 +143,11 @@ decisionLoop:
 
 	#User input exception (if not H, S, or D)
 	printString(invalidChoiceMsg)
+	newLine
 	j decisionLoop
 
 stand:
+	newLine
 	#remind player of their hand
 	printString(pHand)
 	printInt(playerHandValue)
@@ -219,6 +222,7 @@ tieGame:
 	j roundEnd
 
 playerDoubleDown:
+	newLine
 	mul betAmount, betAmount, 2  #Doubles the players bet
 	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
@@ -234,6 +238,7 @@ playerDoubleDown:
 	li $t8, 2
 	j roundEnd
 hit:
+	newLine
 	printString(playerDrawMsg)
 	dealCard(playerHandValue, playerHasAce)
 	printCard($s1)
@@ -242,6 +247,7 @@ hit:
 	beq playerHandValue, 21, drew21
 	printString(pHand)
 	printInt(playerHandValue)
+	newLine
 	newLine
 	blt playerHandValue, 21, decisionLoop
 	#only happens if over 21
