@@ -46,6 +46,7 @@ invalidReplayMsg: .asciiz "Invalid choice. Please enter Y or N.\n"
 invalidBetMsg: .asciiz "Invalid bet. Please enter a valid wager.\n"
 
 .text
+main:
 lw $t0, playerHoldings # current money
 lw $s7, casinoHoldings
 
