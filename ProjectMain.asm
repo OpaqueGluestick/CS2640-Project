@@ -141,7 +141,7 @@ decisionLoop:
 
 	#User input exception (if not H, S, or D)
 	printString(invalidChoiceMsg)
-	j decision loop
+	j decisionLoop
 
 stand:
 	#remind player of their hand
@@ -336,7 +336,7 @@ resetWager:
 
 badResetWager:
 	printString(invalidBetMsg)
-	jresetWager
+	j resetWager
 	
 exit:
 	#Show the player how much they have when they exit the program
