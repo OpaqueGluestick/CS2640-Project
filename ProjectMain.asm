@@ -41,6 +41,9 @@ playerHoldings: .word 50 # player starts with $50
 playerBlackjackMessage: .asciiz "Congrats on the blackjack!"
 leaveCasinoMsg: .asciiz "You walk out of the casino with $"
 playerDrew21: .asciiz "That's 21!"
+invalidChoiceMsg: .asciiz "Invalid choice. Please enter H, S or D.\n"
+invalidReplayMsg: .asciiz "Invalid choice. Please enter Y or N.\n"
+invalidBetMsg: .asciiz "Invalid bet. Please enter a valid wager.\n"
 
 .text
 lw $t0, playerHoldings # current money
@@ -109,11 +112,22 @@ decisionLoop:
 	beq $s2, $s3, hit
 	li $s3, 'h'
 	beq $s2, $s3, hit
+
+	li $s3, 'S'
+	beq $s2, $s3, stand
+	li $s3, 's'
+	beq $s2, $s3, stand
+
 	
 	li $s3, 'D'
 	beq $s2, $s3, playerDoubleDown
 	li $s3, 'd'
 	beq $s2, $s3, playerDoubleDown
+
+
+	#User input exception (if not H, S, or D)
+	printString(invalidChoiceMsg)
+	j decision loop
 
 stand:
 	#remind player of their hand
@@ -281,7 +295,14 @@ askToContinue:
 	li $s4, 'y'
 	beq $s3, $s4, resetWager
 	
-	j exit # exit if 'N'
+	li $s4, 'N'
+	beq $s3, $s4, exit
+	li $s4, 'n'
+	beq $s3, $s4, exit
+
+	# if not Y or N
+	printString(invalidReplayMsg)
+	j askToContinue
 
 resetWager:
 	# reset wager if player wants to bet a different amount
